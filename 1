@@ -1,0 +1,51 @@
+#include <Adafruit_GFX.h>
+#include <Adafruit_ILI9341.h>
+#include <XPT2046_Touchscreen.h>
+
+#define TFT_CS 10
+#define TFT_DC 9
+#define TFT_RST 8
+#define T_CS 4
+
+const int MIN_X = 200;
+const int MAX_X = 3700;
+const int MIN_Y = 250;
+const int MAX_Y = 3800;
+
+Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC, TFT_RST);
+XPT2046_Touchscreen ts(T_CS);
+
+void setup() {
+  Serial.begin(115200);
+  tft.begin();
+  tft.setRotation(3);
+  tft.fillScreen(ILI9341_BLACK);
+  ts.begin();
+  testGraphics();
+}
+
+void loop() {
+  if (ts.touched()) {
+    TS_Point p = ts.getPoint();
+    int pixelX = map(p.y, MIN_Y, MAX_Y, 0, tft.width());
+    int pixelY = map(p.x, MIN_X, MAX_X, 0, tft.height());
+    tft.fillCircle(pixelX, pixelY, 5, ILI9341_RED);
+    Serial.print("X = "); Serial.print(pixelX);
+    Serial.print(", Y = "); Serial.println(pixelY);
+  }
+  delay(10);
+}
+
+void testGraphics() {
+  tft.fillScreen(ILI9341_BLACK);
+  tft.setTextColor(ILI9341_WHITE);
+  tft.setTextSize(2);
+  tft.setCursor(10, 10);
+  tft.println("TFT 320x240 Test");
+  tft.drawLine(0, 30, 319, 30, ILI9341_BLUE);
+  tft.drawRect(50, 50, 100, 60, ILI9341_GREEN);
+  tft.fillRect(60, 60, 80, 40, ILI9341_CYAN);
+  tft.drawCircle(160, 150, 30, ILI9341_YELLOW);
+  tft.fillCircle(260, 150, 25, ILI9341_MAGENTA);
+  tft.drawTriangle(30, 200, 80, 220, 50, 250, ILI9341_ORANGE);
+}
